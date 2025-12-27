@@ -1,16 +1,13 @@
-name: 启用Actions内置命令行
-on: [push, workflow_dispatch] # 推送代码/手动触发
+name: 调试工作流
+on: [push]
+
 jobs:
-  cli-run:
-    runs-on: ubuntu-latest # 运行环境
+  debug-job:
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      # 单条命令，默认bash shell
-      - run: echo "Actions命令行执行中"
-      # 多条命令，用|分隔，指定shell（bash/powershell/cmd可选）
-      - run: |
-          echo "多命令批量执行"
-          gh --version # 内置gh可直接用，无需额外安装
-        shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 授权token，默认自带
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      # 这里是关键：开启调试会话
+      - name: 开启调试会话
+        uses: mxschmitt/action-tmate@v3
