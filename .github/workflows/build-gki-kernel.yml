@@ -1,72 +1,16 @@
-name: Build Android GKI Kernel (ARM64)
-
-# 触发条件：手动触发 / main分支推送
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
-
+name: 启用Actions内置命令行
+on: [push, workflow_dispatch] # 推送代码/手动触发
 jobs:
-  build:
-    runs-on: ubuntu-22.04
+  cli-run:
+    runs-on: ubuntu-latest # 运行环境
     steps:
-      # 步骤1：拉取 GitHub 镜像的 GKI 源码
-      - name: Checkout GKI Source Code
-        uses: actions/checkout@v4
-        with:
-          # 若你已 Fork 仓库，替换为你的仓库地址
-          repository: aosp-mirror/kernel_common
-          ref: android13-5.15  # 指定 GKI 分支
-          path: gki-kernel
-          fetch-depth: 1
-
-      # 步骤2：安装编译依赖（解决工具缺失问题）
-      - name: Install Build Dependencies
-        run: |
-          sudo apt update && sudo apt upgrade -y
-          sudo apt install -y git-core gnupg flex bison build-essential zip curl zlib1g-dev gcc-multilib g++-multilib \
-          libc6-dev-i386 libncurses5-dev lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev \
-          libxml2-utils xsltproc unzip fontconfig python3 python3-pip bc rsync
-
-      # 步骤3：下载安卓官方 ARM64 工具链（替代原错误下载方式）
-      - name: Download Android GCC Toolchain
-        run: |
-          cd gki-kernel
-          mkdir -p prebuilts/gcc/linux-x86/aarch64
-          cd prebuilts/gcc/linux-x86/aarch64
-          # 下载安卓 14 适配的 4.9 工具链（官方镜像）
-          wget https://mirrors.tuna.tsinghua.edu.cn/aosp/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9.tar.xz -O toolchain.tar.xz
-          tar -xvf toolchain.tar.xz
-          rm -f toolchain.tar.xz
-          cd -
-
-      # 步骤4：配置环境变量 & 加载 GKI 配置
-      - name: Configure Build Environment
-        run: |
-          cd gki-kernel
-          export ARCH=arm64
-          export SUBARCH=arm64
-          export CROSS_COMPILE=$(pwd)/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/bin/aarch64-linux-android-
-          # 加载 GKI 通用配置（对应 5.15 分支）
-          make gki_defconfig
-
-      # 步骤5：编译 GKI 内核核心产物
-      - name: Build GKI Kernel
-        run: |
-          cd gki-kernel
-          export ARCH=arm64
-          export SUBARCH=arm64
-          export CROSS_COMPILE=$(pwd)/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/bin/aarch64-linux-android-
-          # 控制并发数，避免 GitHub 虚拟机资源耗尽
-          make -j$(nproc) Image.gz dtbo.img vendor_boot.img
-
-      # 步骤6：上传编译产物（可直接下载）
-      - name: Upload Kernel Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: android14-gki-5.15-arm64
-          path: |
-            gki-kernel/arch/arm64/boot/Image.gz
-            gki-kernel/arch/arm64/boot/dtbo.img
-            gki-kernel/arch/arm64/boot/vendor_boot.img
-          retention-days: 14
+      - uses: actions/checkout@v4
+      # 单条命令，默认bash shell
+      - run: echo "Actions命令行执行中"
+      # 多条命令，用|分隔，指定shell（bash/powershell/cmd可选）
+      - run: |
+          echo "多命令批量执行"
+          gh --version # 内置gh可直接用，无需额外安装
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 授权token，默认自带
