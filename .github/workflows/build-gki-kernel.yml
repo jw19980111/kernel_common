@@ -15,8 +15,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           # 若你已 Fork 仓库，替换为你的仓库地址
-          repository: aosp-mirror/platform_kernel_common
-          ref: android14-5.15-gki  # 指定 GKI 分支
+          repository: aosp-mirror/kernel_common
+          ref: android13-5.15-2025-03_r1  # 指定 GKI 分支
           path: gki-kernel
           fetch-depth: 1
 
