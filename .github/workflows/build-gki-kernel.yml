@@ -5,9 +5,11 @@ jobs:
   debug-job:
     runs-on: ubuntu-latest
     steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
-
-      # 这里是关键：开启调试会话
-      - name: 开启调试会话
-        uses: mxschmitt/action-tmate@v3
+      - name: Configure Build Environment
+        run: |
+          mkdir -p ~/.bin && PATH="$HOME/.bin:$PATH"
+          curl https://storage.googleapis.com/git-repo-downloads/repo > ~/.bin/repo
+          chmod a+x ~/.bin/repo
+          mkdir android-gki && cd android-gki
+          repo init -u https://android.googlesource.com/kernel/manifest -b common-android13-5.15-2025-03
+          repo sync -c -j$(nproc)
