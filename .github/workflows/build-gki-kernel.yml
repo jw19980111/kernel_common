@@ -16,7 +16,7 @@ jobs:
         with:
           # 若你已 Fork 仓库，替换为你的仓库地址
           repository: aosp-mirror/kernel_common
-          ref: android13-5.15-2025-03_r1  # 指定 GKI 分支
+          ref: android13-5.15  # 指定 GKI 分支
           path: gki-kernel
           fetch-depth: 1
 
